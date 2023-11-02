@@ -53,6 +53,10 @@
     
     <h1 class="text-center m-3">Bienvenue sur le formulaire d'enregistrement en ligne </h1>
 
+   {{--  <div class="container my-5">
+        @livewire('upload-photo')
+    </div> --}}
+
     <div class="container-fluid    my-5">
 
         @livewire('enregistrement')
