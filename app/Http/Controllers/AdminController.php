@@ -16,9 +16,9 @@ class AdminController extends Controller
             "password" => 'required', 
         ]);
 
-        //$field = filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $field = filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where($field, $request->email)->first();
         if ($user) {
             if ($request->password == $user->password) {
                 $request->session()->put('id', $user->id); 

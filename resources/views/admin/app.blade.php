@@ -147,6 +147,38 @@
 
     @yield('script')
 
+    
+    <script>
+        var goTopHandler = function(e) {
+            $('.go-top').on('click', function(e) {
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
+                e.preventDefault();
+            });
+        };
+
+        
+        window.addEventListener('close-modal', event => {
+            $('.modal').modal('hide');
+        }); 
+
+        window.addEventListener('eventAction', event => {
+            $('#eventAction').modal('show');
+        }); 
+
+
+        window.addEventListener('alert', event => {
+            toastr[event.detail.type](event.detail.message,
+                event.detail.title ?? ''), toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+            }
+        }); 
+
+        
+    </script>
+
     @livewireScripts
 
 

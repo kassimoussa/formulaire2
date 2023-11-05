@@ -17,7 +17,7 @@ class Enregistrement extends Component
     $id_piece, $piece, $type_piece, $date_emission, $date_expiration, $photo,
     $code_secret, $code_secret_confirmation, $randomSixDigitNumber, $piece_url, $photo_url, $responseMessage;
     public $currentStep = 1;
-    public $totalStep = 4;
+    public $totalStep = 6;
     public $errorMsg = "Ce champ ne doit etre vide !"; 
 
     public function mount()
@@ -25,7 +25,7 @@ class Enregistrement extends Component
         $this->audj = Carbon::today()->format('Y-m-d');
         $this->now = Carbon::now();
         $this->piece_url = "images/addphoto.png";
-        $this->photo_url = "";
+        $this->photo_url = "images/addphoto.png";
     }
 
 
@@ -43,15 +43,25 @@ class Enregistrement extends Component
     {
         return [
             'numero.required' => 'Vous devez entrer un numéro de telephone.',
+            'numero.integer' => 'Vous devez entrer que des chiffres.',
             'numero.unique' => 'Vous avez déja fourni les infos pour ce numéro de telephone.',
-            'numero.max' => 'Vous devez entrer un numéro de 8 chiffres',
-            'numero.min' => 'Vous devez entrer un numéro de 8 chiffres',
+            'numero.max' => 'Vous devez entrer un numéro de 8 chiffres -',
+            'numero.min' => 'Vous devez entrer un numéro de 8 chiffres +',
             'nom.required' => 'Vous devez entrer votre nom.',
             'code_secret_confirmation.required' => 'Vous devez entrer le code qui vous a été envoyé par sms.',
             'code_secret_confirmation.min' => 'Le code secret est de 6 chiffres',
             'code_secret_confirmation.max' => 'Le code secret est de 6 chiffres',
             'code_secret.confirmed' => 'Le code entré ne correspond pas.',
             'piece.required' => "Vous devez entrer une image de votre pièce d'identité.",
+            'photo.required' => "Vous devez entrer une image de votre pièce d'identité.",
+            'date_naissance.required' => 'Vous devez entrer votre date de naissance.',
+            'lieu_naissance.required' => 'Vous devez entrer votre lieu de naissance.',
+            'domicile.required' => 'Vous devez entrer votre domicile.',
+            'profession.required' => 'Vous devez entrer votre profession.',
+            'id_piece.required' => "Vous devez entrer le N° de la pièce d'idnetité .",
+            'type_piece.required' => "Vous devez selectionner le type de pièce que vous allez entrer.",
+            'date_emission.required' => "Vous devez entrer la date d'émission de la pièce d'identité.",
+            'date_expiration.required' => "Vous devez entrer la date d'expiration de la pièce d'identité.", 
         ];
     }
 
@@ -90,7 +100,7 @@ class Enregistrement extends Component
     public function step1a()
     {
         $this->validate([
-            'numero' => 'required|unique:clients|min:8|max:8',
+            'numero' => 'min:8|max:8|required|unique:clients',
         ]);
 
         $check_client = Client::where('numero', $this->numero)->exists();
@@ -148,7 +158,7 @@ class Enregistrement extends Component
     }
 
 
-    public function step2a()
+    public function step1b()
     {
 
         $this->validate([
@@ -163,6 +173,22 @@ class Enregistrement extends Component
             $this->addError('code_secret_confirmation', 'Le code entré ne correspond pas au code qui vous a été envoyé.');
         }
     }
+
+    public function step2()
+    {
+
+        $this->validate([
+            'nom' => 'required',
+            'date_naissance' => 'required',
+            'lieu_naissance' => 'required',
+            'domicile' => 'required',
+            'profession' => 'required',
+            'photo' => 'required|image',
+        ]);
+
+        $this->currentStep = 4;
+    }
+
     public function updated($propertyName)
     {
         /* $this->validateOnly($propertyName); */
@@ -170,14 +196,20 @@ class Enregistrement extends Component
         if ($this->piece) {
             $this->piece_url =  $this->piece->temporaryUrl();
         }
+
+        if ($this->photo) {
+            $this->photo_url =  $this->photo->temporaryUrl();
+        }
     }
 
     public function save()
     {
         $this->validate([
             'piece' => 'required|image',
-            'nom' => 'required',
             'type_piece' => 'required',
+            'id_piece' => 'required',
+            'date_emission' => 'required',
+            'date_expiration' => 'required',
         ]);
 
         $client = new Client();
@@ -204,9 +236,9 @@ class Enregistrement extends Component
         if ($query) {
             $this->piece->storeAs('public/images', $piece_name);
             $this->photo->storeAs('public/images', $photo_name);
-            $this->currentStep = 4;
-        } else {
             $this->currentStep = 5;
+        } else {
+            $this->currentStep = 6;
         }
     }
 
