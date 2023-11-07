@@ -23,6 +23,8 @@ class AdminController extends Controller
             if ($request->password == $user->password) {
                 $request->session()->put('id', $user->id); 
                 $request->session()->put('name', $user->name); 
+                $request->session()->put('username', $user->username); 
+                $request->session()->put('level', $user->level); 
                 return redirect('/admin');
             } else {
                 return back()->with('fail', "Mot de passe incorrecte pour ce compte. Veuillez contactez l'adminirateur du site .");

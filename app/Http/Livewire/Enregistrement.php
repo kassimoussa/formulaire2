@@ -20,6 +20,14 @@ class Enregistrement extends Component
     public $totalStep = 6;
     public $errorMsg = "Ce champ ne doit etre vide !"; 
 
+    public $countdownTime = 180; // Countdown time in seconds
+    public $isButtonDisabled = false;
+
+    public function startCountdown()
+    {
+         $this->emit('startCountdownjs', $this->countdownTime);
+    }
+
     public function mount()
     {
         $this->audj = Carbon::today()->format('Y-m-d');
@@ -122,6 +130,7 @@ class Enregistrement extends Component
 
             $this->code_secret = $randomSixDigitNumber;
             $this->currentStep = 2;
+            $this->startCountdown();
         } else {
             $randomSixDigitNumber = rand(100000, 999999);
             $newSecretCode = new Secretcode();
@@ -133,9 +142,10 @@ class Enregistrement extends Component
 
             $this->code_secret = $randomSixDigitNumber;
             $this->currentStep = 2;
+            $this->startCountdown();
         }
 
-        /* $response = Http::asForm()->post('http://192.168.100.183:8000/api/insert', [
+        $response = Http::asForm()->post('http://192.168.100.183:8000/api/insert', [
             'dir_num' => "253".$this->numero,
             'sms_text' => "Votre code secret est: ".$this->code_secret,
         ]);
@@ -154,7 +164,7 @@ class Enregistrement extends Component
                 'alert',
                 ['type' => 'error',  'message' => "ll y a eu un problème lors de l'envois du sms. Veuillerc cliquer sur le bouton pour Réenvoyer !"]
             );
-        } */
+        }
     }
 
 

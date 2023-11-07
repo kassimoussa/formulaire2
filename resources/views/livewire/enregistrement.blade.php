@@ -47,10 +47,14 @@
                             </span>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <div class=" ">
-                                <button type="button" class="btn btn-secondary " wire:click="sendSecretCode">
-                                    Réenvoyer le code</button>
+
+
+                        <div class="d-flex justify-content-between  mb-2">
+                            <div class="">
+                                <button type="button" class="btn btn-secondary  " wire:click="sendSecretCode"
+                                    id="startButton">
+                                    Réenvoyer un code</button>
+
                             </div>
 
                             <div class=" ">
@@ -58,15 +62,16 @@
                             </div>
                         </div>
 
-                        {{-- <div class="my-3">
-                    <p>{{ $responseMessage }}</p>
-                </div> --}}
+                        <div id="countdownContainer">
+                            Vous pouvez renvoyer un code dans <span id="countdown">{{ $countdownTime }}</span>
+                            secondes
+                        </div>
 
                     </div>
 
-                    @if ($code_secret)
+                    {{--  @if ($code_secret)
                         {{ $code_secret }}
-                    @endif
+                    @endif --}}
 
 
                 </div>
@@ -157,7 +162,7 @@
                                         height="200">
                                 </a>
                                 <input type="file" wire:model="photo" id="photo" class="dimage"
-                                    style="display: none;" onchange="readURL(this);" accept="image/*"  required>
+                                    style="display: none;" onchange="readURL(this);" accept="image/*" required>
                             </div>
                             <span class="text-danger">
                                 @error('photo')
@@ -188,7 +193,8 @@
                             <div class="col-md-6 mb-3">
                                 <label for="type_piece" class="form-label">Choisir votre pièce d'identité</label>
                                 <div class="input-group">
-                                    <select wire:model.defer="type_piece" class="form-select w-25" id="type_piece" required>
+                                    <select wire:model.defer="type_piece" class="form-select w-25" id="type_piece"
+                                        required>
                                         <option value="" selected>Choisir</option>
                                         <option value="CNI">CNI</option>
                                         <option value="Passport">Passport</option>
@@ -296,6 +302,20 @@
 
     </form>
 
+    <script>
+        document.addEventListener('livewire:load', function() {
+            Livewire.on('startCountdown', function(countdownTime) {
+                var countdownElement = document.getElementById('countdown');
+                var interval = setInterval(function() {
+                    countdownTime--;
+                    countdownElement.innerText = countdownTime;
+                    if (countdownTime <= 0) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            });
+        });
+    </script>
 
     {{--
     @if ($code_secret_confirmation)
@@ -319,5 +339,27 @@
         </button>
 
     </div> --}}
+
+    <script>
+        document.addEventListener('livewire:load', function() {
+            const countdownContainer = document.getElementById('countdownContainer');
+            const countdownElement = document.getElementById('countdown');
+            const startButton = document.getElementById('startButton');
+
+            Livewire.on('startCountdownjs', (countdownTime) => {
+                startButton.disabled = true;
+                let interval = setInterval(() => {
+                    countdownTime--;
+                    countdownElement.textContent = countdownTime; // Update countdown element text
+
+                    if (countdownTime <= 0) {
+                        clearInterval(interval);
+                        countdownElement.textContent = '0';
+                        startButton.disabled = false;
+                    }
+                }, 1000);
+            });
+        });
+    </script>
 
 </div>

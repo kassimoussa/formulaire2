@@ -29,7 +29,7 @@
     <style>
         body {
             /*background-color: #dde3fb;*/
-            background: url({{ asset('images/bgHome.gif') }}) center center fixed #ffffff no-repeat;
+            background: url({{ asset('images/djibtelbg2.jpeg') }}) center center fixed #ffffff no-repeat;
             background-size: cover;
         }
 
@@ -59,6 +59,8 @@
 
     <div class="container-fluid    my-5">
 
+       {{--  <livewire:countdown2 /> --}}
+
         @livewire('enregistrement')
 
     </div>
@@ -77,6 +79,7 @@
             }
         });
     </script>
+    
 
     @livewireScripts
 

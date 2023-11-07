@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between mb-4">
         <h3 class="over-title mb-2">La liste des clients </h3>
 
-         <a data-bs-toggle="modal" data-bs-target="#newClient" class="btn  btn-outline-dark  fw-bold">Nouveau client</a>
+        <a data-bs-toggle="modal" data-bs-target="#newClient" class="btn  btn-outline-dark  fw-bold">Nouveau client</a>
 
     </div>
 
@@ -14,8 +14,8 @@
         <form action="" class="col-md-6">
             <div class="input-group  mb-3">
                 <span class="btn btn-dark">Chercher</span>
-                <input type="text" class="form-control " wire:model="search" placeholder="Chercher par nom et numéro "
-                    value="{{ $search }}">
+                <input type="text" class="form-control " wire:model="search"
+                    placeholder="Chercher par nom et numéro " value="{{ $search }}">
             </div>
         </form>
     </div>
@@ -24,6 +24,7 @@
         <table class="table table-bordered border- table-striped table-hover table-sm align-middle " id="">
             <thead class=" table-dark text-white text-center">
                 <th scope="col">#</th>
+                <th scope="col">Photo</th>
                 <th scope="col">Numero</th>
                 <th scope="col">Nom</th>
                 <th scope="col">Type Pièce</th>
@@ -37,8 +38,18 @@
                         $delmodal = 'delete' . $cnt;
                     @endphp
                     @foreach ($clients as $client)
+                        @php
+                            if ($client->photo) {
+                                $pprofil = $client->photo_storage_path;
+                            } else {
+                                $pprofil = 'https://ui-avatars.com/api/?size=235&name=' . $client->nom;
+                            }
+                        @endphp
                         <tr>
                             <td>{{ $cnt }}</td>
+                            <td><img style="width: 60px; height: 60px; oject-fit: cover;" src="{{ asset($pprofil) }}"
+                                    alt="Photo" role="button" {{-- wire:click="showImg('{{ $materiel->id }}')" data-bs-toggle="modal"
+                            data-bs-target="#imgmodal" --}}> </td>
                             <td>{{ $client->numero }}</td>
                             <td>{{ $client->nom }}</td>
                             <td>{{ $client->type_piece }}</td>
@@ -138,8 +149,9 @@
                                     </div> --}}
 
                                     <div class="mt-1 col-2 d-flex justify-content-center align-items-center ">
-                                        <img alt="Photo du client" hover="Photo du client" src="{{ asset($photo_url2) }}"
-                                            class="rounded float-start " id="avatar" height="150" width="200">
+                                        <img alt="Photo du client" hover="Photo du client"
+                                            src="{{ asset($photo_url2) }}" class="rounded float-start " id="avatar"
+                                            height="150" width="200">
                                     </div>
 
                                     <div class="col-10">
@@ -154,7 +166,8 @@
                                                         <i class="fa-solid fa-phone text-dark"></i>
                                                     </span>
                                                     <input type="text" class="form-control" id="numero"
-                                                        wire:model.defer="numero2" placeholder="ex: 77123456 " required>
+                                                        wire:model.defer="numero2" placeholder="ex: 77123456 "
+                                                        required>
                                                 </div>
                                                 <span class="text-danger">
                                                     @error('numero2')
@@ -427,8 +440,7 @@
                             <div class="card-body">
                                 <div class="row ">
 
-                                    <div
-                                        class=" mt-2 col-2 d-flex justify-content-center align-items-center "> 
+                                    <div class=" mt-2 col-2 d-flex justify-content-center align-items-center ">
                                         <a id="imgupload" class=""
                                             onclick="$('#photoInput').trigger('click'); return false;" role="button"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
@@ -463,7 +475,8 @@
                                                         <i class="fa-solid fa-phone text-dark"></i>
                                                     </span>
                                                     <input type="text" class="form-control" id="numero"
-                                                        wire:model.defer="numero" placeholder="ex: 77123456 " required>
+                                                        wire:model.defer="numero" placeholder="ex: 77123456 "
+                                                        required>
                                                 </div>
                                                 <span class="text-danger">
                                                     @error('numero')
@@ -581,8 +594,7 @@
                             <div class="card-body">
                                 <div class="row ">
 
-                                    <div
-                                        class=" mt-2 col-3 d-flex justify-content-center align-items-center "> 
+                                    <div class=" mt-2 col-3 d-flex justify-content-center align-items-center ">
                                         <a id="imgupload" class=""
                                             onclick="$('#pieceInput').trigger('click'); return false;" role="button"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
@@ -600,7 +612,7 @@
                                         </span>
                                     </div>
 
-                                   {{--  <div class="mt-1 col-3 d-flex justify-content-center align-items-center ">
+                                    {{--  <div class="mt-1 col-3 d-flex justify-content-center align-items-center ">
                                         <img alt="Pièce du client" hover="Pièce du client"
                                             src="{{ asset($piece_url2) }}" class="rounded float-start "
                                             id="avatar" height="150" width="300">
@@ -732,20 +744,19 @@
                                 <div class="card-header bg-dark text-center text-white">
                                     <h3> Photo de profil</h3>
                                 </div>
-    
+
                                 <div class="card-body text-center">
-                                    <div
-                                        class=" mt-2  ">
+                                    <div class=" mt-2  ">
                                         <a id="" class=""
                                             onclick="$('#photoInput2').trigger('click'); return false;" role="button"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
                                             title="Cliquer pour ajouter la photo du client " disabled>
                                             <img alt="Photo du client" hover="Photo du client"
-                                                src="{{ asset($photo_url2) }}" class="rounded   "
-                                                id="avatar" height="150" width="200">
+                                                src="{{ asset($photo_url2) }}" class="rounded   " id="avatar"
+                                                height="150" width="200">
                                         </a>
-                                        <input type="file" wire:model.lazy="photo2" id="photoInput2" class="dimage"
-                                            style="display: none;" accept="image/*">
+                                        <input type="file" wire:model.lazy="photo2" id="photoInput2"
+                                            class="dimage" style="display: none;" accept="image/*">
                                         <span class="text-danger">
                                             @error('photo2')
                                                 {{ $message }}
@@ -753,27 +764,26 @@
                                         </span>
                                     </div>
                                 </div>
-    
+
                             </div>
-    
+
                             <div class="card col-md-6 ">
                                 <div class="card-header bg-dark text-center text-white">
                                     <h3> Pièce d'identité</h3>
                                 </div>
-    
+
                                 <div class="card-body text-center">
-                                    <div
-                                        class=" ">
+                                    <div class=" ">
                                         <a id="" class=""
                                             onclick="$('#pieceInput2').trigger('click'); return false;" role="button"
                                             data-bs-toggle="tooltip" data-bs-placement="bottom"
                                             title="Cliquer pour ajouter la piece du client " disabled>
                                             <img alt="piece du client" hover="piece du client"
-                                                src="{{ asset($piece_url2) }}" class="rounded "
-                                                id="avatar" height="150" width="300">
+                                                src="{{ asset($piece_url2) }}" class="rounded " id="avatar"
+                                                height="150" width="300">
                                         </a>
-                                        <input type="file" wire:model.lazy="piece2" id="pieceInput2" class="dimage"
-                                            style="display: none;" accept="image/*">
+                                        <input type="file" wire:model.lazy="piece2" id="pieceInput2"
+                                            class="dimage" style="display: none;" accept="image/*">
                                         <span class="text-danger">
                                             @error('piece2')
                                                 {{ $message }}
@@ -781,7 +791,7 @@
                                         </span>
                                     </div>
                                 </div>
-    
+
                             </div>
                         </div>
                     </div>
@@ -790,7 +800,7 @@
         </div>
     </div>
 
-    
+
 
 
 </div>
