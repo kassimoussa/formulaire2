@@ -13,3 +13,23 @@
 @import "~@fortawesome/fontawesome-free/scss/regular";
 @import "~@fortawesome/fontawesome-free/scss/solid";
 @import "~@fortawesome/fontawesome-free/scss/brands";
+
+
+
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/utilities";
+
+$utilities: map-merge(
+    $utilities, (
+        "width": map-merge(map-get($utilities, "width"),
+                (responsive: true),
+            ),
+        "border": map-merge(map-get($utilities, "border"),
+                (responsive: true),
+            ),
+        ));
+
+
+@import "bootstrap/scss/utilities/api";

@@ -1,6 +1,6 @@
 @php
     use App\Models\User;
-    $user = User::where('id', session('id'))->first(); 
+    $user = User::where('id', session('id'))->first();
     if (session('id') != $user->id) {
         session()->forget('id');
         session()->put('id', $user->id);
@@ -17,7 +17,7 @@
 
     <title> {{ $page }} </title>
 
-    @livewireStyles 
+    @livewireStyles
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/toastr.min.css') }}">
@@ -25,13 +25,14 @@
     {{-- <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}"> --}}
 
 
-    <!-- Scripts --> 
+    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/toastr.min.js') }}"></script>
     <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/chart.js') }}"></script> 
+    <script src="{{ asset('js/chart.js') }}"></script>
 
- 
+
 
     <style>
         body {
@@ -39,7 +40,7 @@
         }
 
         .nav_link:hover {
-            color: blue !important;
+            color: #f9be2a !important;
             font-weight: bold;
             font-size: 18px;
 
@@ -51,7 +52,7 @@
         }
 
         .activee {
-            color: blue !important;
+            color: #f9be2a !important;
             font-weight: bold;
             font-size: 18px;
             background: #212529 !important;
@@ -86,6 +87,25 @@
             margin-bottom: 10px;
             float: left;
         }
+
+        /* Custom styles for a scrollable modal */
+        .scrollable-modal {
+            max-height: calc(100vh - 90px);
+            /* Adjust as needed */
+            overflow-y: auto;
+        }
+
+        /* Style to make the image cover its parent */
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Reverse image horizontally */
+        .reverse-image {
+            transform: scaleX(-1);
+        }
     </style>
 </head>
 
@@ -94,22 +114,30 @@
     <!-- Page Heading -->
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            {{-- <a class="navbar-brand" href="#"><img src="{{ asset('images/logo.png') }}" height="40px" width="70px"
-                    alt=""></a> --}}
-            <a class="navbar-brand @if ($pageSlug == 'accueil') {{ 'activee' }} @endif"
-                href="{{ url('index') }}">Accueil</a>
+            <a class="navbar-brand  mr-auto mr-lg-3 ml-3 ml-lg-0 "><img src="{{ asset('images/djibtelogo.png') }}"
+                    height="36"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
                 aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarScroll">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+
+                    <li class="nav-item">
+                        <a class="nav-link nav_link  @if ($pageSlug == 'clients') {{ 'activee' }} @endif "
+                            href="{{ url('administration') }}"> <i class="fas fa-users mx-1"></i> Clients</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav_link  @if ($pageSlug == 'users') {{ 'activee' }} @endif "
+                            href="{{ url('users') }}"> <i class="fas fa-user-cog mx-1"></i> Utilisateurs</a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link nav_link  @if ($pageSlug == 'stats') {{ 'activee' }} @endif "
                             href="{{ url('stats') }}">Stats</a>
                     </li>
 
-                   {{--  @if (session('level') == 1 || session('level') == 4)
+                    {{--  @if (session('level') == 1 || session('level') == 4)
                         <li class="nav-item">
                             <a class="nav-link nav_link  @if ($pageSlug == 'create') {{ 'activee' }} @endif "
                                 href="{{ url('fiches/create') }}">Ajouter</a>
@@ -119,11 +147,11 @@
                 <div class="d-flex">
                     <div class="nav-item dropdown dropstart">
 
-                        <h5 class="nav-link nav_link fw-bold   dropdown-toggle"
-                            id="user" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <h5 class="nav-link nav_link fw-bold   dropdown-toggle" id="user" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             {{ $user->name }} </h5>
 
-                        <ul class="dropdown-menu dropdown-menu-dark bg-dark " aria-labelledby="user"> 
+                        <ul class="dropdown-menu dropdown-menu-dark bg-dark " aria-labelledby="user">
                             <li><a class="dropdown-item" href="{{ url('logout') }}">Déconnexion</a></li>
                         </ul>
                     </div>
@@ -147,7 +175,7 @@
 
     @yield('script')
 
-    
+
     <script>
         var goTopHandler = function(e) {
             $('.go-top').on('click', function(e) {
@@ -158,15 +186,6 @@
             });
         };
 
-        
-        window.addEventListener('close-modal', event => {
-            $('.modal').modal('hide');
-        }); 
-
-        window.addEventListener('eventAction', event => {
-            $('#eventAction').modal('show');
-        }); 
-
 
         window.addEventListener('alert', event => {
             toastr[event.detail.type](event.detail.message,
@@ -174,9 +193,15 @@
                 "closeButton": true,
                 "progressBar": true,
             }
-        }); 
+        });
 
-        
+        window.addEventListener('close-modal', event => {
+            $('.modal').modal('hide');
+        });
+
+        window.addEventListener('eventAction', event => {
+            $('#eventAction').modal('show');
+        });
     </script>
 
     @livewireScripts

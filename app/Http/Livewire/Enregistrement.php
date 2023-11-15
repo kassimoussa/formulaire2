@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\SecretCode;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -13,27 +14,36 @@ use Livewire\WithFileUploads;
 class Enregistrement extends Component
 {
     use WithFileUploads;
-    public $audj, $now, $nom, $numero, $date_naissance, $lieu_naissance, $domicile, $profession, 
-    $id_piece, $piece, $type_piece, $date_emission, $date_expiration, $photo,
-    $code_secret, $code_secret_confirmation, $randomSixDigitNumber, $piece_url, $photo_url, $responseMessage;
+    public $audj, $now, $nom, $numero, $date_naissance, $lieu_naissance, $domicile, $profession, $photo,
+        $id_piece, $type_piece, $piece_recto, $piece_verso,  $date_emission, $date_expiration,
+        $code_secret, $code_secret_confirmation, $randomSixDigitNumber, $piece_recto_url, $piece_verso_url, $photo_url, $responseMessage;
     public $currentStep = 1;
-    public $totalStep = 6;
-    public $errorMsg = "Ce champ ne doit etre vide !"; 
+    public $totalStep = 5;
+    public $errorMsg = "Ce champ ne doit etre vide !";
 
-    public $countdownTime = 180; // Countdown time in seconds
+    /* public $countdownTime = 180;  
     public $isButtonDisabled = false;
 
     public function startCountdown()
     {
-         $this->emit('startCountdownjs', $this->countdownTime);
+        $this->emit('startCountdownjs', $this->countdownTime);
+    } */
+
+    public $countdownActive = false;
+
+    public function startCountdown()
+    {
+        $this->countdownActive = true;
+        $this->emit('startCountdown');
     }
 
     public function mount()
     {
         $this->audj = Carbon::today()->format('Y-m-d');
         $this->now = Carbon::now();
-        $this->piece_url = "images/addphoto.png";
-        $this->photo_url = "images/addphoto.png";
+        $this->photo_url = "images/user-icon.png";
+        $this->piece_recto_url = "images/idcard.png";
+        $this->piece_verso_url = "images/idcard-verso.png";
     }
 
 
@@ -60,8 +70,9 @@ class Enregistrement extends Component
             'code_secret_confirmation.min' => 'Le code secret est de 6 chiffres',
             'code_secret_confirmation.max' => 'Le code secret est de 6 chiffres',
             'code_secret.confirmed' => 'Le code entré ne correspond pas.',
-            'piece.required' => "Vous devez entrer une image de votre pièce d'identité.",
-            'photo.required' => "Vous devez entrer une image de votre pièce d'identité.",
+            'piece_recto.required' => "Vous devez entrer une image recto de  votre pièce d'identité.",
+            'piece_verso.required' => "Vous devez entrer une image verso de votre pièce d'identité.",
+            'photo.required' => "Vous devez entrer une image de votre visage.",
             'date_naissance.required' => 'Vous devez entrer votre date de naissance.',
             'lieu_naissance.required' => 'Vous devez entrer votre lieu de naissance.',
             'domicile.required' => 'Vous devez entrer votre domicile.',
@@ -69,7 +80,7 @@ class Enregistrement extends Component
             'id_piece.required' => "Vous devez entrer le N° de la pièce d'idnetité .",
             'type_piece.required' => "Vous devez selectionner le type de pièce que vous allez entrer.",
             'date_emission.required' => "Vous devez entrer la date d'émission de la pièce d'identité.",
-            'date_expiration.required' => "Vous devez entrer la date d'expiration de la pièce d'identité.", 
+            'date_expiration.required' => "Vous devez entrer la date d'expiration de la pièce d'identité.",
         ];
     }
 
@@ -146,8 +157,8 @@ class Enregistrement extends Component
         }
 
         $response = Http::asForm()->post('http://192.168.100.183:8000/api/insert', [
-            'dir_num' => "253".$this->numero,
-            'sms_text' => "Votre code secret est: ".$this->code_secret,
+            'dir_num' => "253" . $this->numero,
+            'sms_text' => "Votre code secret est: " . $this->code_secret,
         ]);
 
         if ($response->successful()) {
@@ -203,8 +214,12 @@ class Enregistrement extends Component
     {
         /* $this->validateOnly($propertyName); */
 
-        if ($this->piece) {
-            $this->piece_url =  $this->piece->temporaryUrl();
+        if ($this->piece_recto) {
+            $this->piece_recto_url =  $this->piece_recto->temporaryUrl();
+        }
+
+        if ($this->piece_verso) {
+            $this->piece_verso_url =  $this->piece_verso->temporaryUrl();
         }
 
         if ($this->photo) {
@@ -212,43 +227,61 @@ class Enregistrement extends Component
         }
     }
 
-    public function save()
+
+    public function step3()
     {
+
+
         $this->validate([
-            'piece' => 'required|image',
+            'piece_recto' => 'required|image',
+            'piece_verso' => 'required|image',
             'type_piece' => 'required',
             'id_piece' => 'required',
             'date_emission' => 'required',
             'date_expiration' => 'required',
         ]);
 
+        $this->currentStep = 5;
+    }
+    public function save()
+    {
         $client = new Client();
         $client->numero = $this->numero;
         $client->nom = Str::title($this->nom);
         $client->type_piece = $this->type_piece;
         $client->date_naissance = $this->date_naissance;
-        $client->lieu_naissance = $this->lieu_naissance;
-        $client->domicile = $this->domicile;
-        $client->profession = $this->profession;
+        $client->lieu_naissance = Str::title($this->lieu_naissance);
+        $client->domicile = Str::title($this->domicile);
+        $client->profession = Str::title($this->profession);
         $client->id_piece = $this->id_piece;
         $client->date_emission = $this->date_emission;
         $client->date_expiration = $this->date_expiration;
-        $piece_name = time() . '.' . $this->piece->getClientOriginalName();
-        $client->piece =  $piece_name;
-        $client->piece_public_path = "public/images/" . $piece_name;
-        $client->piece_storage_path = "storage/images/" . $piece_name;
-        $photo_name = time() . '.' . $this->photo->getClientOriginalName();
+        // $piece_recto_name = time() . '.' . $this->piece_recto->getClientOriginalName();
+        $piece_recto_name = $this->numero . '.recto.' . time() . '.' . $this->piece_recto->getClientOriginalExtension();
+        $client->piece_recto =  $piece_recto_name;
+        $client->piece_recto_public_path = "public/images/" . $piece_recto_name;
+        $client->piece_recto_storage_path = "storage/images/" . $piece_recto_name;
+        //$piece_verso_name = time() . '.' . $this->piece_verso->getClientOriginalName();
+        $piece_verso_name = $this->numero . '.verso.' . time() . '.' . $this->piece_verso->getClientOriginalExtension();
+        $client->piece_verso =  $piece_verso_name;
+        $client->piece_verso_public_path = "public/images/" . $piece_verso_name;
+        $client->piece_verso_storage_path = "storage/images/" . $piece_verso_name;
+        //$photo_name = time() . '.' . $this->photo->getClientOriginalName();
+        $photo_name = $this->numero . '.photo.' . time() . '.' . $this->photo->getClientOriginalExtension();
         $client->photo =  $photo_name;
         $client->photo_public_path = "public/images/" . $photo_name;
         $client->photo_storage_path = "storage/images/" . $photo_name;
         $query = $client->save();
 
         if ($query) {
-            $this->piece->storeAs('public/images', $piece_name);
-            $this->photo->storeAs('public/images', $photo_name);
-            $this->currentStep = 5;
+            $this->piece_recto->storeAs('public/images', $piece_recto_name);
+            $this->piece_verso->storeAs('public/images', $piece_verso_name);
+            $this->photo->storeAs('public/images', $photo_name); 
+            Session::flash("success", "L'enregistrement de vos informations s'est déroulé avec succès !");
+            return redirect()->to('/');
         } else {
-            $this->currentStep = 6;
+            Session::flash("fail", "L'enregistrement de vos informations a échoué. Veuillez réessayer.");
+            return redirect()->to('/');
         }
     }
 

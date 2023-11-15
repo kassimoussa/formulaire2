@@ -1,4 +1,4 @@
-@extends('admin.app', ['page' => 'Liste des clients', 'pageSlug' => 'admin'])
+@extends('admin.app', ['page' => 'Gesion des clients', 'pageSlug' => 'clients'])
 @section('content')
     <div class="conainer">
         

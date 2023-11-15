@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,17 +20,16 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
-    return view('admin.connexion');
+    return view('connexion');
 });
 Route::prefix('auth')->group(function () {
-    Route::post('/check', [AdminController::class, 'check']);
+    Route::post('/check', [AuthController::class, 'check']);
 });
 
 Route::group(['middleware' => ['logged']], function () {
 
-    Route::get('/admin', function () {
-        return view('admin.client_list');
-    });
-    
-    Route::get('/logout', [AdminController::class, 'logout']);
+    Route::get('/administration', [AdminController::class, 'index']);
+    Route::get('/users', [AdminController::class, 'users']);
+
+    Route::get('/logout', [AuthController::class, 'logout']);
 });

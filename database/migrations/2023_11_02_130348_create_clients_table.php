@@ -21,9 +21,12 @@ return new class extends Migration
             $table->string('profession')->nullable();
             $table->string('id_piece')->nullable();
             $table->string('type_piece')->nullable(); 
-            $table->string('piece')->nullable();
-            $table->string('piece_public_path')->nullable();
-            $table->string('piece_storage_path')->nullable();
+            $table->string('piece_recto')->nullable();
+            $table->string('piece_verso')->nullable();
+            $table->string('piece_recto_public_path')->nullable();
+            $table->string('piece_recto_storage_path')->nullable();
+            $table->string('piece_verso_public_path')->nullable();
+            $table->string('piece_verso_storage_path')->nullable();
             $table->date('date_emission')->nullable();
             $table->date('date_expiration')->nullable();
             $table->string('photo')->nullable();

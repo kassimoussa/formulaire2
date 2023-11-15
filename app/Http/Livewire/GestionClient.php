@@ -13,16 +13,23 @@ class GestionClient extends Component
     use WithFileUploads;
     public $clients, $client_id, $numero, $nom, $date_naissance, $lieu_naissance, $domicile, $profession, $photo, $photo_url, $imgUrl;
     public $numero2, $nom2, $date_naissance2, $lieu_naissance2, $domicile2, $profession2, $photo2, $photo_url2;
-    public $id_piece, $piece, $piece_url, $type_piece, $date_emission, $date_expiration;
-    public $id_piece2, $piece2, $piece_url2, $type_piece2, $date_emission2, $date_expiration2;
+    public $id_piece, $piece_recto, $piece_recto_url, $piece_verso, $piece_verso_url, $type_piece, $date_emission, $date_expiration;
+    public $id_piece2, $piece_recto2, $piece_recto_url2, $piece_verso2, $piece_verso_url2, $type_piece2, $date_emission2, $date_expiration2;
     public $search = "";
 
     public function mount()
     {
-        $this->photo_url = "images/addphoto.png";
-        $this->photo_url2 = "images/addphoto.png";
-        $this->piece_url = "images/addphoto.png";
-        $this->piece_url2 = "images/addphoto.png";
+        $this->resetImg();
+    }
+
+    public function resetImg()
+    {
+        $this->photo_url = "images/user-icon.png";
+        $this->photo_url2 = "images/user-icon.png";
+        $this->piece_recto_url = "images/idcard.png";
+        $this->piece_recto_url2 = "images/idcard.png";
+        $this->piece_verso_url = "images/idcard-verso.png";
+        $this->piece_verso_url2 = "images/idcard-verso.png";
     }
 
     protected $rules = [
@@ -32,9 +39,11 @@ class GestionClient extends Component
         'domicile' => 'required',
         'profession' => 'required',
         'photo' => 'required|image',
-        'piece' => 'required|image',
+        'piece_recto' => 'required|image',
+        'piece_recto2' => 'required|image',
+        'piece_verso' => 'required|image',
+        'piece_verso2' => 'required|image',
         'photo2' => 'required|image',
-        'piece2' => 'required|image',
         'type_piece' => 'required',
         'id_piece' => 'required',
         'date_emission' => 'required',
@@ -66,8 +75,10 @@ class GestionClient extends Component
         $this->domicile2 = $client->domicile;
         $this->profession2 = $client->profession;
         $this->id_piece2 = $client->id_piece;
-        $this->piece2 = $client->piece;
-        $this->piece_url2 = $client->piece_storage_path;
+        $this->piece_recto2 = $client->piece_recto;
+        $this->piece_verso2 = $client->piece_verso;
+        $this->piece_recto_url2 = $client->piece_recto_storage_path;
+        $this->piece_verso_url2 = $client->piece_verso_storage_path;
         $this->type_piece2 = $client->type_piece;
         $this->date_emission2 = $client->date_emission;
         $this->date_expiration2 = $client->date_expiration;
@@ -83,7 +94,8 @@ class GestionClient extends Component
             'domicile' => 'required',
             'profession' => 'required',
             'photo' => 'required|image',
-            'piece' => 'required|image',
+            'piece_recto' => 'required|image',
+            'piece_verso' => 'required|image',
             'type_piece' => 'required',
             'id_piece' => 'required',
             'date_emission' => 'required',
@@ -95,24 +107,32 @@ class GestionClient extends Component
         $client->nom = Str::title($this->nom);
         $client->type_piece = $this->type_piece;
         $client->date_naissance = $this->date_naissance;
-        $client->lieu_naissance = $this->lieu_naissance;
-        $client->domicile = $this->domicile;
-        $client->profession = $this->profession;
+        $client->lieu_naissance = Str::title($this->lieu_naissance);
+        $client->domicile = Str::title($this->domicile);
+        $client->profession = Str::title($this->profession);
         $client->id_piece = $this->id_piece;
         $client->date_emission = $this->date_emission;
         $client->date_expiration = $this->date_expiration;
-        $piece_name = time() . '.' . $this->piece->getClientOriginalName();
-        $client->piece =  $piece_name;
-        $client->piece_public_path = "public/images/" . $piece_name;
-        $client->piece_storage_path = "storage/images/" . $piece_name;
-        $photo_name = time() . '.' . $this->photo->getClientOriginalName();
+       // $piece_recto_name = time() . '.' . $this->piece_recto->getClientOriginalName();
+        $piece_recto_name = $this->numero.'.recto.'.time() . '.'.$this->piece_recto->getClientOriginalExtension();
+        $client->piece_recto =  $piece_recto_name;
+        $client->piece_recto_public_path = "public/images/" . $piece_recto_name;
+        $client->piece_recto_storage_path = "storage/images/" . $piece_recto_name;
+        //$piece_verso_name = time() . '.' . $this->piece_verso->getClientOriginalName();
+        $piece_verso_name = $this->numero.'.verso.'.time() . '.'.$this->piece_verso->getClientOriginalExtension();
+        $client->piece_verso =  $piece_verso_name;
+        $client->piece_verso_public_path = "public/images/" . $piece_verso_name;
+        $client->piece_verso_storage_path = "storage/images/" . $piece_verso_name;
+        //$photo_name = time() . '.' . $this->photo->getClientOriginalName();
+        $photo_name =$this->numero.'.photo.'.time() . '.'.$this->photo->getClientOriginalExtension();
         $client->photo =  $photo_name;
         $client->photo_public_path = "public/images/" . $photo_name;
         $client->photo_storage_path = "storage/images/" . $photo_name;
         $query = $client->save();
 
         if ($query) {
-            $this->piece->storeAs('public/images', $piece_name);
+            $this->piece_recto->storeAs('public/images', $piece_recto_name);
+            $this->piece_verso->storeAs('public/images', $piece_verso_name);
             $this->photo->storeAs('public/images', $photo_name);
             $this->close_modal();
             $this->getClient();
@@ -163,33 +183,24 @@ class GestionClient extends Component
         }
     }
 
-    public function updateImg()
+
+    public function updatePhoto()
     {
         $client = Client::find($this->client_id);
 
+        $numero = $client->numero;
         $photo_name = $client->photo;
         $photo_public_path = $client->photo_public_path;
         $photo_storage_path = $client->photo_storage_path;
-        $piece_name = $client->piece;
-        $piece_public_path = $client->piece_public_path;
-        $piece_storage_path = $client->piece_storage_path;
 
         if ($this->photo2 != $client->photo) {
-            $photo_name = time() . '.' . $this->photo2->getClientOriginalName();
+            //$photo_name = time() . '.' . $this->photo2->getClientOriginalName();
+            $photo_name = $numero.'.photo.'.time() . '.'.$this->photo2->getClientOriginalExtension();
             $photo_public_path = "public/images/" . $photo_name;
             $photo_storage_path = "storage/images/" . $photo_name;
             $this->photo2->storeAs('public/images', $photo_name);
             if ($client->photo_public_path != null) {
                 Storage::delete($client->photo_public_path);
-            }
-        } 
-        if ($this->piece2 != $client->piece) {
-            $piece_name = time() . '.' . $this->piece2->getClientOriginalName();
-            $piece_public_path = "public/images/" . $piece_name;
-            $piece_storage_path = "storage/images/" . $piece_name;
-            $this->piece2->storeAs('public/images', $piece_name);
-            if ($client->piece_public_path != null) {
-                Storage::delete($client->piece_public_path);
             }
         }
 
@@ -197,9 +208,64 @@ class GestionClient extends Component
             'photo' => $photo_name,
             'photo_public_path' => $photo_public_path,
             'photo_storage_path' => $photo_storage_path,
-            'piece' => $piece_name,
-            'piece_public_path' => $piece_public_path,
-            'piece_storage_path' => $piece_storage_path,
+        ]);
+
+        if ($query) {
+            $this->close_modal();
+            $this->getClient();
+            $this->dispatchBrowserEvent(
+                'alert',
+                ['type' => 'success',  'message' => 'Modification réussi!']
+            );
+            $this->dispatchBrowserEvent('close-modal');
+        } else {
+            $this->dispatchBrowserEvent(
+                'alert',
+                ['type' => 'error',  'message' => "Erreur lors de la modification!"]
+            );
+            $this->dispatchBrowserEvent('close-modal');
+        }
+    }
+    public function updatePiece()
+    {
+        $client = Client::find($this->client_id);
+
+        $numero = $client->numero;
+        $piece_recto_name = $client->piece_recto;
+        $piece_recto_public_path = $client->piece_recto_public_path;
+        $piece_recto_storage_path = $client->piece_recto_storage_path;
+        $piece_verso_name = $client->piece_verso;
+        $piece_verso_public_path = $client->piece_verso_public_path;
+        $piece_verso_storage_path = $client->piece_verso_storage_path;
+
+        if ($this->piece_recto2 != $client->piece_recto) {
+            //$piece_recto_name = time() . '.' . $this->piece_recto2->getClientOriginalName();
+            $piece_recto_name = $numero.'.recto.'.time() . '.'.$this->piece_recto2->getClientOriginalExtension();
+            $piece_recto_public_path = "public/images/" . $piece_recto_name;
+            $piece_recto_storage_path = "storage/images/" . $piece_recto_name;
+            $this->piece_recto2->storeAs('public/images', $piece_recto_name);
+            if ($client->piece_recto_public_path != null) {
+                Storage::delete($client->piece_recto_public_path);
+            }
+        }
+        if ($this->piece_verso2 != $client->piece_verso) {
+            //$piece_verso_name = time() . '.' . $this->piece_verso2->getClientOriginalName();
+            $piece_verso_name = $numero.'verso.'.time() . '.'.$this->piece_verso2->getClientOriginalExtension();
+            $piece_verso_public_path = "public/images/" . $piece_verso_name;
+            $piece_verso_storage_path = "storage/images/" . $piece_verso_name;
+            $this->piece_verso2->storeAs('public/images', $piece_verso_name);
+            if ($client->piece_verso_public_path != null) {
+                Storage::delete($client->piece_verso_public_path);
+            }
+        }
+
+        $query = $client->update([ 
+            'piece_recto' => $piece_recto_name,
+            'piece_recto_public_path' => $piece_recto_public_path,
+            'piece_recto_storage_path' => $piece_recto_storage_path,
+            'piece_verso' => $piece_verso_name,
+            'piece_verso_public_path' => $piece_verso_public_path,
+            'piece_verso_storage_path' => $piece_verso_storage_path,
         ]);
 
         if ($query) {
@@ -234,19 +300,23 @@ class GestionClient extends Component
     {
         $this->validateOnly($propertyName);
 
-        if ($this->piece) {
-            $this->piece_url =  $this->piece->temporaryUrl();
+        if ($this->piece_recto) {
+            $this->piece_recto_url =  $this->piece_recto->temporaryUrl();
+        }
+
+        if ($this->piece_verso) {
+            $this->piece_verso_url =  $this->piece_verso->temporaryUrl();
         }
 
         if ($this->photo) {
             $this->photo_url =  $this->photo->temporaryUrl();
         }
 
-        /* if ($this->photo2) {
-            $this->photo_url2 =  $this->photo2->temporaryUrl();
+        /* if ($this->piece_recto2) {
+            $this->piece_recto_url2 =  $this->piece_recto2->temporaryUrl();
         }
-        if ($this->piece2) {
-            $this->piece_url2 =  $this->piece2->temporaryUrl();
+        if ($this->piece_verso2) {
+            $this->piece_verso_url2 =  $this->piece_verso2->temporaryUrl();
         } */
     }
 
@@ -258,31 +328,43 @@ class GestionClient extends Component
             $this->photo_url2 =  $this->photo2->temporaryUrl();
         }
     }
-    public function updatedPiece2($propertyName)
+    public function updatedPieceRecto2($propertyName)
     {
         // $this->validateOnly($propertyName);
 
-        if ($this->piece2) {
-            $this->piece_url2 =  $this->piece2->temporaryUrl();
+        if ($this->piece_recto2) {
+            $this->piece_recto_url2 =  $this->piece_recto2->temporaryUrl();
+        }
+    }
+    public function updatedPieceVerso2($propertyName)
+    {
+        // $this->validateOnly($propertyName);
+
+        if ($this->piece_verso2) {
+            $this->piece_verso_url2 =  $this->piece_verso2->temporaryUrl();
         }
     }
 
     public function close_modal()
     {
         $this->reset([
-            'nom', 'numero', 'date_naissance', 'lieu_naissance', 'domicile', 'profession', 'type_piece', 'id_piece', 'date_emission', 'date_expiration',
+            'client_id', 'nom', 'numero', 'date_naissance', 'lieu_naissance', 'domicile', 'profession', 'type_piece', 'id_piece', 'date_emission', 'date_expiration',
             'nom2', 'numero2', 'date_naissance2', 'lieu_naissance2', 'domicile2', 'profession2', 'type_piece2', 'id_piece2', 'date_emission2', 'date_expiration2',
         ]);
-        /* $this->photo_url = "images/addphoto.png";
-        $this->photo_url2 = "images/addphoto.png";
-        $this->piece_url = "images/addphoto.png";
-        $this->piece_url2 = "images/addphoto.png"; */
+        $this->resetImg();
     }
     public function delete()
     {
         $client = Client::find($this->client_id);
-        if ($client->public_path != null) {
-            Storage::delete($client->public_path);
+        if ($client->photo_public_path != null) {
+            Storage::delete($client->photo_public_path);
+        }
+        $client = Client::find($this->client_id);
+        if ($client->piece_recto_public_path != null) {
+            Storage::delete($client->piece_recto_public_path);
+        }
+        if ($client->piece_verso_recto_public_path != null) {
+            Storage::delete($client->piece_verso_recto_public_path);
         }
         $client->delete();
         $this->getClient();
