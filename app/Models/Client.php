@@ -29,5 +29,13 @@ class Client extends Model
         'photo',
         'photo_public_path',
         'photo_storage_path', 
+        'user_id'
     ];
+
+    
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

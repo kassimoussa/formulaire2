@@ -30,6 +30,8 @@ Route::group(['middleware' => ['logged']], function () {
 
     Route::get('/administration', [AdminController::class, 'index']);
     Route::get('/users', [AdminController::class, 'users']);
+    Route::get('/stats', [AdminController::class, 'stats']);
+    Route::get('/liste_sims', [AdminController::class, 'liste_sims']);
 
     Route::get('/logout', [AuthController::class, 'logout']);
 });

@@ -7,19 +7,27 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 class GestionClient extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
     use WithFileUploads;
-    public $clients, $client_id, $numero, $nom, $date_naissance, $lieu_naissance, $domicile, $profession, $photo, $photo_url, $imgUrl;
+    public /* $clients, */ $client_id, $numero, $nom, $date_naissance, $lieu_naissance, $domicile, $profession, $photo, $photo_url, $imgUrl;
     public $numero2, $nom2, $date_naissance2, $lieu_naissance2, $domicile2, $profession2, $photo2, $photo_url2;
     public $id_piece, $piece_recto, $piece_recto_url, $piece_verso, $piece_verso_url, $type_piece, $date_emission, $date_expiration;
     public $id_piece2, $piece_recto2, $piece_recto_url2, $piece_verso2, $piece_verso_url2, $type_piece2, $date_emission2, $date_expiration2;
+    public $user_id, $level;
     public $search = "";
+    public $date_from, $date_to;
+    public $selected_type_piece = [];
 
     public function mount()
     {
         $this->resetImg();
+        $this->user_id = session('id');
+        $this->level = session('level');
     }
 
     public function resetImg()
@@ -54,12 +62,28 @@ class GestionClient extends Component
     public function getClient()
     {
         $search = $this->search;
-        $this->clients = Client::Where(function ($query) use ($search) {
-            $query->where('numero', 'Like', '%' . $search . '%')
-                ->orWhere('nom', 'Like', '%' . $search . '%')
-                ->orWhere('type_piece', 'Like', '%' . $search . '%');
-        })->orderBy("created_at", "asc")
-            ->get();
+        /* $this->clients = Client::when($this->search, function ($query) {
+            $query->where('numero', 'like', '%' . $this->search . '%')
+                ->orWhere('nom', 'like', '%' . $this->search . '%') ;
+        })
+        ->when($this->date_from && $this->date_to, function ($query) {
+            $query->whereBetween('created_at', [$this->date_from, $this->date_to]);
+        })
+        ->when($this->selected_type_piece, function ($query, $selected_type_piece) {
+            return $query->whereIn('type_piece', $selected_type_piece);
+        })
+        ->orderBy("created_at", "asc")
+            ->get(); */
+
+        /* $this->clients = Client::whereLike(['numero', 'nom'], $this->search ?? '')
+        ->when($this->date_from && $this->date_to, function ($query) {
+            $query->whereBetween('created_at', [$this->date_from, $this->date_to]);
+        })
+        ->when($this->selected_type_piece, function ($query, $selected_type_piece) {
+            return $query->whereIn('type_piece', $selected_type_piece);
+        })
+        ->orderBy("created_at", "asc")->get(); */
+        //dump($this->clients);
     }
 
     public function loadid($client_id)
@@ -113,21 +137,22 @@ class GestionClient extends Component
         $client->id_piece = $this->id_piece;
         $client->date_emission = $this->date_emission;
         $client->date_expiration = $this->date_expiration;
-       // $piece_recto_name = time() . '.' . $this->piece_recto->getClientOriginalName();
-        $piece_recto_name = $this->numero.'.recto.'.time() . '.'.$this->piece_recto->getClientOriginalExtension();
+        // $piece_recto_name = time() . '.' . $this->piece_recto->getClientOriginalName();
+        $piece_recto_name = $this->numero . '.recto.' . time() . '.' . $this->piece_recto->getClientOriginalExtension();
         $client->piece_recto =  $piece_recto_name;
         $client->piece_recto_public_path = "public/images/" . $piece_recto_name;
         $client->piece_recto_storage_path = "storage/images/" . $piece_recto_name;
         //$piece_verso_name = time() . '.' . $this->piece_verso->getClientOriginalName();
-        $piece_verso_name = $this->numero.'.verso.'.time() . '.'.$this->piece_verso->getClientOriginalExtension();
+        $piece_verso_name = $this->numero . '.verso.' . time() . '.' . $this->piece_verso->getClientOriginalExtension();
         $client->piece_verso =  $piece_verso_name;
         $client->piece_verso_public_path = "public/images/" . $piece_verso_name;
         $client->piece_verso_storage_path = "storage/images/" . $piece_verso_name;
         //$photo_name = time() . '.' . $this->photo->getClientOriginalName();
-        $photo_name =$this->numero.'.photo.'.time() . '.'.$this->photo->getClientOriginalExtension();
+        $photo_name = $this->numero . '.photo.' . time() . '.' . $this->photo->getClientOriginalExtension();
         $client->photo =  $photo_name;
         $client->photo_public_path = "public/images/" . $photo_name;
         $client->photo_storage_path = "storage/images/" . $photo_name;
+        $client->user_id =  $this->user_id;
         $query = $client->save();
 
         if ($query) {
@@ -195,7 +220,7 @@ class GestionClient extends Component
 
         if ($this->photo2 != $client->photo) {
             //$photo_name = time() . '.' . $this->photo2->getClientOriginalName();
-            $photo_name = $numero.'.photo.'.time() . '.'.$this->photo2->getClientOriginalExtension();
+            $photo_name = $numero . '.photo.' . time() . '.' . $this->photo2->getClientOriginalExtension();
             $photo_public_path = "public/images/" . $photo_name;
             $photo_storage_path = "storage/images/" . $photo_name;
             $this->photo2->storeAs('public/images', $photo_name);
@@ -240,7 +265,7 @@ class GestionClient extends Component
 
         if ($this->piece_recto2 != $client->piece_recto) {
             //$piece_recto_name = time() . '.' . $this->piece_recto2->getClientOriginalName();
-            $piece_recto_name = $numero.'.recto.'.time() . '.'.$this->piece_recto2->getClientOriginalExtension();
+            $piece_recto_name = $numero . '.recto.' . time() . '.' . $this->piece_recto2->getClientOriginalExtension();
             $piece_recto_public_path = "public/images/" . $piece_recto_name;
             $piece_recto_storage_path = "storage/images/" . $piece_recto_name;
             $this->piece_recto2->storeAs('public/images', $piece_recto_name);
@@ -250,7 +275,7 @@ class GestionClient extends Component
         }
         if ($this->piece_verso2 != $client->piece_verso) {
             //$piece_verso_name = time() . '.' . $this->piece_verso2->getClientOriginalName();
-            $piece_verso_name = $numero.'verso.'.time() . '.'.$this->piece_verso2->getClientOriginalExtension();
+            $piece_verso_name = $numero . 'verso.' . time() . '.' . $this->piece_verso2->getClientOriginalExtension();
             $piece_verso_public_path = "public/images/" . $piece_verso_name;
             $piece_verso_storage_path = "storage/images/" . $piece_verso_name;
             $this->piece_verso2->storeAs('public/images', $piece_verso_name);
@@ -259,7 +284,7 @@ class GestionClient extends Component
             }
         }
 
-        $query = $client->update([ 
+        $query = $client->update([
             'piece_recto' => $piece_recto_name,
             'piece_recto_public_path' => $piece_recto_public_path,
             'piece_recto_storage_path' => $piece_recto_storage_path,
@@ -376,7 +401,16 @@ class GestionClient extends Component
     }
     public function render()
     {
-        $this->getClient();
-        return view('livewire.gestion-client');
+        //$this->getClient();
+
+        $clients = Client::whereLike(['numero', 'nom'], $this->search ?? '')
+        ->when($this->date_from && $this->date_to, function ($query) {
+            $query->whereBetween('created_at', [$this->date_from, $this->date_to]);
+        })
+        ->when($this->selected_type_piece, function ($query, $selected_type_piece) {
+            return $query->whereIn('type_piece', $selected_type_piece);
+        })
+        ->orderBy("created_at", "asc")->paginate(20);
+        return view('livewire.gestion-client', ['clients' => $clients]);
     }
 }

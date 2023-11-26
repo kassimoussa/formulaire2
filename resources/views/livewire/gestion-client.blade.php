@@ -1,23 +1,96 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <div class="py-3 px-3">
 
     <x-loading-indicator />
 
     <div class="d-flex justify-content-between mb-4">
-        <h3 class="over-title mb-2">La liste des clients </h3>
+        <h3 class="over-title mb-2">La liste des clients enregistrés</h3>
 
-        <a data-bs-toggle="modal" data-bs-target="#newClient" class="btn  btn-outline-dark  fw-bold">Nouveau client</a>
+        <a data-bs-toggle="modal" data-bs-target="#newClient" class="btn  btn-outline-dark  fw-bold"
+            title="Ajouter un client">Nouveau client</a>
 
     </div>
 
 
-    <div class="d-flex justify-content-start mb-2">
-        <form action="" class="col-md-6">
-            <div class="input-group  mb-3">
+    <div class="d-flex justify-content-start mb-5">
+        <div class="col-md-4">
+            <div class="input-group  ">
                 <span class="btn btn-dark">Chercher</span>
-                <input type="text" class="form-control " wire:model="search"
+                <input type="search" class="form-control " wire:model="search"
                     placeholder="Chercher par nom et numéro " value="{{ $search }}">
             </div>
-        </form>
+        </div>
+
+        <div class="btn-group px-2 dropdown-center " wire:ignore >
+            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                data-bs-auto-close="false" aria-expanded="false">
+                <span class="fw-bold  ">Date </span>
+            </button>
+            <ul class="dropdown-menu custom-width"   >
+                <div class="row ">
+                    <li class="col-md-6">
+                        <div class="dropdown-item ">
+                            <div class="input-group  ">
+                                <span class="btn btn-dark">Debut</span>
+                                <input type="date" class="form-control " wire:model.debounce="date_from">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="col-md-6">
+                        <div class="dropdown-item ">
+                            <div class="input-group  ">
+                                <span class="btn btn-dark">Fin</span>
+                                <input type="date" class="form-control " wire:model.debounce="date_to">
+                            </div>
+                        </div>
+                    </li>
+                </div>
+            </ul>
+        </div>
+
+        <div class="btn-group px-2 " wire:ignore >
+            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                data-bs-auto-close="false" aria-expanded="false">
+                <span class="fw-bold px-2 ">Pièce d'identité </span>
+            </button>
+            <ul class="dropdown-menu">
+                <div class="row ">
+                    <li class="col">
+                        <div class="dropdown-item ">
+                            <input type="checkbox" class="form-check-input pe-1" wire:model="selected_type_piece"
+                                id="choix_CNI" value="CNI">
+                            <label class="form-check-label" for="choix_CNI"> CNI </label>
+                        </div>
+                    </li> 
+                    <li class="col">
+                        <div class="dropdown-item ">
+                            <input type="checkbox" class="form-check-input pe-1" wire:model="selected_type_piece"
+                                id="choix_pass" value="Passport">
+                            <label class="form-check-label" for="choix_pass"> Passport </label>
+                        </div>
+                    </li> 
+                    <li class="col">
+                        <div class="dropdown-item ">
+                            <input type="checkbox" class="form-check-input pe-1" wire:model="selected_type_piece"
+                                id="choix_tds" value="Titre de séjour">
+                            <label class="form-check-label" for="choix_tds"> Titre de séjour </label>
+                        </div>
+                    </li> 
+                    <li class="col">
+                        <div class="dropdown-item ">
+                            <input type="checkbox" class="form-check-input pe-1" wire:model="selected_type_piece"
+                                id="choix_cdr" value="Carte de réfugié">
+                            <label class="form-check-label" for="choix_cdr"> Carte de réfugié </label>
+                        </div>
+                    </li> 
+                </div>
+            </ul>
+        </div>
+
+
     </div>
 
     <div>
@@ -28,6 +101,8 @@
                 <th scope="col">Numero</th>
                 <th scope="col">Nom</th>
                 <th scope="col">Type Pièce</th>
+                <th scope="col">Créé par</th>
+                <th scope="col">Date</th>
                 <th scope="col">Action</th>
             </thead>
             <tbody class="text-center">
@@ -46,13 +121,15 @@
                             }
                         @endphp
                         <tr>
-                            <td>{{ $cnt }}</td>
+                            <td>{{ $client->id }}</td>
                             <td><img style="width: 60px; height: 60px; oject-fit: cover;" src="{{ asset($pprofil) }}"
                                     alt="Photo" role="button" wire:click="loadid('{{ $client->id }}')"
                                     data-bs-toggle="modal" data-bs-target="#updPhoto"> </td>
                             <td>{{ $client->numero }}</td>
                             <td>{{ $client->nom }}</td>
                             <td>{{ $client->type_piece }}</td>
+                            <td>{{ optional($client->user)->name ?? 'Le client' }}</td>
+                            <td>{{ Carbon::parse( $client->created_at)->format('d/m/Y') }}</td>
                             <td class="td-actions ">
                                 <a data-bs-toggle="modal" data-bs-target="#updClient"
                                     wire:click="loadid('{{ $client->id }}')" class="btn " data-bs-toggle="tooltip"
@@ -82,14 +159,14 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="10">There are no data.</td>
+                        <td colspan="10">Aucun client trouvé.</td>
                     </tr>
                 @endif
             </tbody>
         </table>
-        {{-- <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center">
             {{ $clients->links() }}
-        </div> --}}
+        </div>
 
         <x-delete-modal delmodal="delete" message="Confirmer la suppression " delf="delete" />
 
@@ -221,7 +298,7 @@
         </div>
     </div>
 
-    
+
     <div class="modal fade" id="newClient" tabindex="-1" aria-hidden="true" wire:ignore.self>
 
         <div class="modal-dialog modal-fullscreen " role="document">
@@ -838,7 +915,8 @@
                                                 <div class="card-header text-center">Recto de la pièce</div>
                                                 <div
                                                     class="card-body d-flex justify-content-center align-items-center ">
-                                                    <img alt="Recto de la pièce" hover="Recto de la pièce" style="height: 200px; width: 400px;"
+                                                    <img alt="Recto de la pièce" hover="Recto de la pièce"
+                                                        style="height: 200px; width: 400px;"
                                                         src="{{ asset($piece_recto_url2) }}"
                                                         class="rounded cover-image " id="avatar">
                                                 </div>
@@ -851,7 +929,8 @@
                                                 <div
                                                     class="card-body d-flex justify-content-center align-items-center ">
 
-                                                    <img alt="Verso de la pièce" hover="Verso de la pièce" style="height: 200px; width: 400px;"
+                                                    <img alt="Verso de la pièce" hover="Verso de la pièce"
+                                                        style="height: 200px; width: 400px;"
                                                         src="{{ asset($piece_verso_url2) }}"
                                                         class="rounded  cover-image " id="avatar">
                                                 </div>

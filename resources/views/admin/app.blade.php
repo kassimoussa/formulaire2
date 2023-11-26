@@ -106,6 +106,11 @@
         .reverse-image {
             transform: scaleX(-1);
         }
+
+        .custom-width {
+            width: 500px;
+            /* Set the desired width */
+        }
     </style>
 </head>
 
@@ -128,13 +133,19 @@
                             href="{{ url('administration') }}"> <i class="fas fa-users mx-1"></i> Clients</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav_link  @if ($pageSlug == 'users') {{ 'activee' }} @endif "
-                            href="{{ url('users') }}"> <i class="fas fa-user-cog mx-1"></i> Utilisateurs</a>
+                        <a class="nav-link nav_link  @if ($pageSlug == 'sims') {{ 'activee' }} @endif "
+                            href="{{ url('liste_sims') }}"> <i class="fas fa-users mx-1"></i> Liste</a>
                     </li>
+                    @if (session('level') == '1')
+                        <li class="nav-item">
+                            <a class="nav-link nav_link  @if ($pageSlug == 'users') {{ 'activee' }} @endif "
+                                href="{{ url('users') }}"> <i class="fas fa-user-cog mx-1"></i> Utilisateurs</a>
+                        </li>
+                    @endif
 
                     <li class="nav-item">
                         <a class="nav-link nav_link  @if ($pageSlug == 'stats') {{ 'activee' }} @endif "
-                            href="{{ url('stats') }}">Stats</a>
+                            href="{{ url('stats') }}"> <i class="fas fa-chart-line mx-1"></i> Stats</a>
                     </li>
 
                     {{--  @if (session('level') == 1 || session('level') == 4)

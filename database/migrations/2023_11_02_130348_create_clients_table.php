@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->string('photo_public_path')->nullable();
             $table->string('photo_storage_path')->nullable();
+            $table->integer('user_id')->nullable();
             $table->timestamps();
         });
     }

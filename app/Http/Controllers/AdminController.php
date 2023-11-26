@@ -22,4 +22,18 @@ class AdminController extends Controller
         return view('admin.'. $level . '.user');
     }
 
+    public function stats()
+    {
+        $level = session('level');
+
+        return view('admin.1.stats');
+    }
+
+    public function liste_sims()
+    {
+        $level = session('level');
+
+        return view('admin.1.liste');
+    }
+
 }
