@@ -828,19 +828,19 @@
                                         <div class="row">
 
                                             <div class="mt-1 col-6 ">
-                                                <label for="id_pieceé" class="form-label text-muted fw-italic mb-0">
+                                                <label for="id_piece2" class="form-label text-muted fw-italic mb-0">
                                                     N° de Pièce
                                                     *</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text txt fw-bold  text-white">
                                                         <i class="fa-solid fa-phone text-dark"></i>
                                                     </span>
-                                                    <input type="text" class="form-control" id="id_pieceé"
-                                                        wire:model.defer="id_pieceé"
+                                                    <input type="text" class="form-control" id="id_piece2"
+                                                        wire:model.defer="id_piece2"
                                                         placeholder="Ex: N° de CNI ou N° de Passport, etc" required>
                                                 </div>
                                                 <span class="text-danger">
-                                                    @error('id_pieceé')
+                                                    @error('id_piece2')
                                                         {{ $message }}
                                                     @enderror
                                                 </span>

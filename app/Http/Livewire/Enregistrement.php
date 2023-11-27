@@ -140,8 +140,6 @@ class Enregistrement extends Component
             ]);
 
             $this->code_secret = $randomSixDigitNumber;
-            $this->currentStep = 2;
-            $this->startCountdown();
         } else {
             $randomSixDigitNumber = rand(100000, 999999);
             $newSecretCode = new Secretcode();
@@ -152,25 +150,41 @@ class Enregistrement extends Component
 
 
             $this->code_secret = $randomSixDigitNumber;
-            $this->currentStep = 2;
-            $this->startCountdown();
         }
 
-        $response = Http::asForm()->post('http://192.168.100.183:8000/api/insert', [
+        /* $response = Http::asForm()->post('http://192.168.100.183:8000/api/insert', [
             'dir_num' => "253" . $this->numero,
             'sms_text' => "Votre code secret est: " . $this->code_secret,
+        ]); */
+
+        $url = 'http://10.39.230.68:13013/cgi-bin/sendsms';
+        $user = 'sms_usr1';
+        $pass = 'sms_pwd1';
+        $from = 'DJIBTEL';
+        $to = "253" . $this->numero;
+        $text = "Votre code secret est: " . $this->code_secret;
+
+        $response = Http::get($url, [
+            'user' => $user,
+            'pass' => $pass,
+            'from' => $from,
+            'to' => $to,
+            'text' => $text,
         ]);
+
+        // dump($response);
 
         if ($response->successful()) {
             // Request was successful
-            $this->responseMessage = $response->json()['message'];
+            $this->currentStep = 2;
+            $this->startCountdown();
             $this->dispatchBrowserEvent(
                 'alert',
                 ['type' => 'success',  'message' => "Le sms vous a été envoyé avec succès!"]
             );
         } else {
             // Request failed
-            $this->responseMessage = 'Error: ' . $response->status();
+            $this->currentStep = 2;
             $this->dispatchBrowserEvent(
                 'alert',
                 ['type' => 'error',  'message' => "ll y a eu un problème lors de l'envois du sms. Veuillerc cliquer sur le bouton pour Réenvoyer !"]
@@ -276,7 +290,7 @@ class Enregistrement extends Component
         if ($query) {
             $this->piece_recto->storeAs('public/images', $piece_recto_name);
             $this->piece_verso->storeAs('public/images', $piece_verso_name);
-            $this->photo->storeAs('public/images', $photo_name); 
+            $this->photo->storeAs('public/images', $photo_name);
             Session::flash("success", "L'enregistrement de vos informations s'est déroulé avec succès !");
             return redirect()->to('/');
         } else {
