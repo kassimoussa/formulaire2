@@ -19,6 +19,10 @@ Route::get('/', function () {
     return view('index');
 });
 
+Route::get('/simmy', function () {
+    return view('1.index');
+});
+
 Route::get('/login', function () {
     return view('connexion');
 });
