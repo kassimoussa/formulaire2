@@ -23,9 +23,10 @@ Route::get('/simmy', function () {
     return view('1.index');
 });
 
-Route::get('/login', function () {
+/* Route::get('/login', function () {
     return view('connexion');
-});
+}); */
+
 Route::prefix('auth')->group(function () {
     Route::post('/check', [AuthController::class, 'check']);
 });
