@@ -1,6 +1,6 @@
 @extends('admin.app', ['page' => 'Gesion des SIMs', 'pageSlug' => 'sims'])
 @section('content')
-    <div class="container">
+    <div class="conainer">
         
         <livewire:gestion-liste  />
 
