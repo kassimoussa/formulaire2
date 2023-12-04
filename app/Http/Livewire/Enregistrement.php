@@ -74,6 +74,7 @@ class Enregistrement extends Component
             'piece_verso.required' => "Vous devez entrer une image verso de votre pièce d'identité.",
             'photo.required' => "Vous devez entrer une image de votre visage.",
             'date_naissance.required' => 'Vous devez entrer votre date de naissance.',
+            'date_naissance.date_format' => "Vous devez entrer une date valide.",
             'lieu_naissance.required' => 'Vous devez entrer votre lieu de naissance.',
             'domicile.required' => 'Vous devez entrer votre domicile.',
             'profession.required' => 'Vous devez entrer votre profession.',
@@ -81,6 +82,8 @@ class Enregistrement extends Component
             'type_piece.required' => "Vous devez selectionner le type de pièce que vous allez entrer.",
             'date_emission.required' => "Vous devez entrer la date d'émission de la pièce d'identité.",
             'date_expiration.required' => "Vous devez entrer la date d'expiration de la pièce d'identité.",
+            'date_emission.date_format' => "Vous devez entrer une date valide.",
+            'date_expiration.date_format' => "Vous devez entrer une date valide.",
         ];
     }
 
@@ -214,7 +217,7 @@ class Enregistrement extends Component
 
         $this->validate([
             'nom' => 'required',
-            'date_naissance' => 'required',
+            'date_naissance' => 'required|date|date_format:Y-m-d',
             'lieu_naissance' => 'required',
             'domicile' => 'required',
             'profession' => 'required',
@@ -251,8 +254,8 @@ class Enregistrement extends Component
             'piece_verso' => 'required|image',
             'type_piece' => 'required',
             'id_piece' => 'required',
-            'date_emission' => 'required',
-            'date_expiration' => 'required',
+            'date_emission' => 'required|date|date_format:Y-m-d',
+            'date_expiration' => 'required|date|date_format:Y-m-d',
         ]);
 
         $this->currentStep = 5;
